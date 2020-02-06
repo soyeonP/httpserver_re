@@ -34,6 +34,7 @@ public class ResponseHeaderBuilder {
     private void setHttpVersion(String version) { statusLine.put("HttpVersion", version); }
 
     public  void setETag(String etag){ fields.put("ETag",etag);}
+
     private void setStatusCode(String code) {    statusLine.put("Code", code); }
 
     private void setReasonPhrase(String phrase) { statusLine.put("Phrase", phrase); }
@@ -44,8 +45,11 @@ public class ResponseHeaderBuilder {
     public  void setContextType(){
         setField("Content-Type", "text/html; charset=ISO-8859-1");
     }
+
     public void setContextType(File resourceFile) throws IOException { setField("Content-Type", getContentType(resourceFile)); }
+
     public void setContextType(String type){ setField("Content-Type",type);}
+
     public ResponseHeader build() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(statusLine.get("HttpVersion"));

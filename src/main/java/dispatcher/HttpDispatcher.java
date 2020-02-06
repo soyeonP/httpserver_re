@@ -50,6 +50,8 @@ public class HttpDispatcher {
                 break;
             case PUT:
                 break;
+            case DELETE:
+                break;
             default:
                 throw new HttpError(StatusCode.NOT_IMPLEMENTED); //지원안하는 메소드얌
         }

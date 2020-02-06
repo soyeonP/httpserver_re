@@ -16,8 +16,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ConnectionWrap implements Runnable {
 
@@ -61,29 +59,20 @@ public class ConnectionWrap implements Runnable {
                    if(request!=null){
                        String resource = request.getHeader().getResource();
                        if(resource != null) {
-                           //Map<String,String> queris = null;
                            if(resource.equals("/")) { resource = "\\index.html"; }
-                           /*if(isQuery(resource)){
-                               String[] resourceTokens = resource.split("\\?");
-                               resource = resourceTokens[0];
-                               String[] queries = resourceTokens[1].split("\\&");
-                               queris = getQuery(queries);
-                               context.getResponse().setBody(GetServlet.writeHttp(queris));
-                           }*/
+
                            File resourceFile = new File(droot, resource);
                            String eTag = getETag(resourceFile,resource);
                            errorHandler.checkHeader(request.getHeader(),resourceFile,eTag,droot);
                            context.setRequest(request);
                            context.setResponse(dispatcher.dispatch(request,eTag));
-                           //if(queris!=null){ context.getResponse().setBody(GetServlet.writeHttp(queris));}
                        }
-
                        //writer에 response를 다 적어준다.
                        byte[] buffer = new byte[1024];
                        int sz;
                        InputStream inputStream = context.getResponse().getStream();
                        logger.debug("start responding");
-                       while ((sz = inputStream.read(buffer)) != -1)
+                       while ((sz = inputStream.read(buffer)) != -1) //이 while 문 고쳐야함!
                            out.write(buffer, 0, sz);
                        out.flush();
                        logger.debug("end of handler");
@@ -128,18 +117,6 @@ public class ConnectionWrap implements Runnable {
                 e.printStackTrace();
             }
         }
-    }
-
-    private Map<String, String> getQuery(String[] resource) {
-        Map<String,String> Queries = new HashMap<>();
-        System.out.println(resource.length);
-        for (String s : resource) {
-            String[] query =s.split("=");
-            System.out.println(query[0]);
-            System.out.println(query[1]);
-            Queries.put(query[0], query[1]);
-        }
-        return Queries;
     }
 
     public String getETag(File file, String resource) {

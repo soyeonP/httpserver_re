@@ -37,7 +37,7 @@ public class ErrorHandler {
         logger.debug(field.toString());
 
         //조건부 리퀘스트 일때
-        if (requestHeader.getHeaders().containsKey("If-Match")) {
+        if (requestHeader.getHeaders().containsKey("If-Match")) { //
             if (!requestHeader.getHeaders().get("If-Match").equals("\"" + eTag + "\"")) {
                 throw new HttpError(StatusCode.PRECONDITION_FAILED, resource);
             }

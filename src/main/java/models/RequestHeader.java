@@ -11,7 +11,7 @@ public class RequestHeader {
 
 
     public enum Method {
-        GET,POST,HEAD,PUT
+        GET,POST,HEAD,PUT,DELETE
     }
     //메소드 버전 리소스는 따로 만들어줄까? 필수니까.
     public RequestHeader(Map<String, String> fields){
