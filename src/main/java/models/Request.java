@@ -4,6 +4,7 @@ public class Request {
     private RequestHeader header;
     private Body body;
 
+
     public Request(RequestHeader header, Body body){
         this.header = header;
         this.body = body;
@@ -16,6 +17,7 @@ public class Request {
     public Body getBody(){
         return body;
     }
+
 
     @Override
     public String toString() {

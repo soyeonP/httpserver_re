@@ -21,6 +21,7 @@ public class ResponseBodyBuilder {
 
     public Body build(String resource) throws IOException { //get 요청시 그냥 파일명 혹은 파일명+쿼리가 들어온다.
         if(!isQuery(resource)){
+            logger.debug("this request have query");
             File resourceFile = new File(resource);
             byte[] bodydata = new byte[(int) resourceFile.length()];
             new FileInputStream(resourceFile).read(bodydata);
@@ -39,19 +40,18 @@ public class ResponseBodyBuilder {
     }
 
     private boolean isQuery(String resource) {
-        logger.debug("this request have query");
         return resource.contains("?");
     }
 
     private Map<String, String> getQuery(String[] resource) {
         Map<String,String> Queries = new HashMap<>();
-        System.out.println(resource[0].toString());
-        System.out.println(resource.length);
+        String value = "";
         for (String s : resource) {
             String[] query =s.split("=");
-            System.out.println(query[0].toString());
-            System.out.println(query[1]);
-            Queries.put(query[0], query[1]);
+            if(query.length==2)
+                value =query[1];
+            else value="";
+            Queries.put(query[0], value);
         }
         return Queries;
     }

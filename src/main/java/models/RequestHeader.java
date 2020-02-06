@@ -8,7 +8,7 @@ public class RequestHeader {
     private Method method;
     private String resource;
     private String httpVersion="HTTP/1.1";
-
+    private String eTag;
 
     public enum Method {
         GET,POST,HEAD,PUT,DELETE
@@ -48,6 +48,13 @@ public class RequestHeader {
         return fields.get("protocol");
     }
 
+    public String geteTag(){
+        return eTag;
+    }
+
+    public void seteTag(String eTag){
+        this.eTag = eTag;
+    }
     @Override
     public String toString() {
         return fields.toString();

@@ -14,4 +14,7 @@ public class ResponseHeader {
         return new ByteArrayInputStream(data);
     }
 
+    public String getHeader(){
+        return new String(data);
+    }
 }

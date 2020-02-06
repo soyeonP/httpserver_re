@@ -1,5 +1,8 @@
-package error;
+package handler;
 
+import dispatcher.WriteETag;
+import error.HttpError;
+import error.StatusCode;
 import models.Header;
 import models.RequestHeader;
 import org.slf4j.Logger;
@@ -12,19 +15,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
 
+//이름 새로 짓자.
 public class ErrorHandler {
     private Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
-    private File resourceFile ;
 
-    public void checkHeader(RequestHeader requestHeader, File resourceFile, String eTag, File droot) throws HttpError {
-
+    public void checkHeader(RequestHeader requestHeader,File droot) throws HttpError {
+        WriteETag writeETag = new WriteETag();
         RequestHeader.Method method = requestHeader.getMethod();
-        //GET HEAD POST 밖에 안했다...사실 아직 GET밖엥나했...아니 GET도 다안했...
-        if(method != RequestHeader.Method.GET && method != RequestHeader.Method.HEAD && method != RequestHeader.Method.POST){
-            throw new HttpError(StatusCode.NOT_IMPLEMENTED,requestHeader.getMethod().toString());
-        }
-
         String resource = requestHeader.getResource();
+        if(resource.equals("/")) { resource = "\\index.html"; }
+
+        File resourceFile = new File(droot, resource);
 
         logger.debug("resource Path : "+resourceFile.toString());
         if (!resourceFile.exists()&&!resource.contains("?")) {
@@ -32,6 +33,9 @@ public class ErrorHandler {
             throw new HttpError(StatusCode.NOT_FOUND, resource);
         }
         requestHeader.setResource(resourceFile.getPath());
+
+        String eTag =writeETag.getETag(resourceFile);
+        requestHeader.seteTag(eTag);
         Map<String,String> field = requestHeader.getHeaders();
 
         logger.debug(field.toString());

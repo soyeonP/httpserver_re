@@ -14,11 +14,19 @@ public class Response {
         return inputStream;
     }
 
+    public String getheader(){
+        return header.getHeader();
+    }
+
     public void setHeader(ResponseHeader header) {
         this.header = header;
     }
 
     public void setBody(Body body) {
         this.body = body;
+    }
+
+    public Body getBody(){
+        return body;
     }
 }

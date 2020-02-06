@@ -3,7 +3,7 @@ package service;
 
 import Sevlet.ErrorServlet;
 import dispatcher.HttpDispatcher;
-import error.ErrorHandler;
+import handler.ErrorHandler;
 import error.HttpError;
 import models.Header;
 import models.HttpContext;
@@ -43,43 +43,40 @@ public class ConnectionWrap implements Runnable {
 
     @Override
     public void run() {
-        logger.debug("New Client Connect! Connected IP :"+ socket.getInetAddress()+", Port : %d"+ socket.getPort());
-        try(OutputStream out = socket.getOutputStream()){
+        logger.debug("New Client Connect! Connected IP :" + socket.getInetAddress() + ", Port : %d" + socket.getPort());
+        try (OutputStream out = socket.getOutputStream()) {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-           // int requestCount = 0;
-            while(true){
+            // int requestCount = 0;
+            while (true) {
                 try {
-                    //request 헤더 바디가 request에 담겨 있다.
                     socket.setSoTimeout(SOCKET_TIMEOUT);
                     Request request = parser.parse(br);
                     //requestCount ++;
                     logger.debug(request.toString());
                     //받아온 리퀘스트가 가 옳은 리퀘스트인지 확인해보자!
-                   if(request!=null){
-                       String resource = request.getHeader().getResource();
-                       if(resource != null) {
-                           if(resource.equals("/")) { resource = "\\index.html"; }
+                    if (request != null) {
+                        String resource = request.getHeader().getResource();
+                        if (resource != null) {
+                            errorHandler.checkHeader(request.getHeader(), droot);
+                            context.setRequest(request);
+                            context.setResponse(dispatcher.dispatch(request));
+                        }
+                        //writer에 response를 다 적어준다.
+                        byte[] buffer = new byte[1024];
+                        int sz;
+                        InputStream inputStream = context.getResponse().getStream();
+                        logger.debug("start responding");
+                        writer.write(context.getResponse().getheader());
+                        /*                       writer.write( "\r\n");*/
+                        writer.write(context.getResponse().getBody().toString());
+/*                       while ((sz = inputStream.read(buffer)) != -1) //이 while 문 고쳐야함!
+                           out.write(buffer, 0, sz);*/
+                        writer.flush();
+                        logger.debug("end of handler");
+                    } else break;
 
-                           File resourceFile = new File(droot, resource);
-                           String eTag = getETag(resourceFile,resource);
-                           errorHandler.checkHeader(request.getHeader(),resourceFile,eTag,droot);
-                           context.setRequest(request);
-                           context.setResponse(dispatcher.dispatch(request,eTag));
-                       }
-                       //writer에 response를 다 적어준다.
-                       byte[] buffer = new byte[1024];
-                       int sz;
-                       InputStream inputStream = context.getResponse().getStream();
-                       logger.debug("start responding");
-                       while ((sz = inputStream.read(buffer)) != -1) //이 while 문 고쳐야함!
-                           out.write(buffer, 0, sz);
-                       out.flush();
-                       logger.debug("end of handler");
-                   }
-                   else break;
-
-                    if(request.getHeader().getHeaders().containsKey(Header.CONNECTION.getText())) {
+                    if (request.getHeader().getHeaders().containsKey(Header.CONNECTION.getText())) {
                         if ("close".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
                             //클라가 커넥션클로싱 요청
                             logger.debug("client requested connection close");
@@ -92,14 +89,13 @@ public class ConnectionWrap implements Runnable {
                             }
                         }
                     }
-               //     if (requestCount >= max) break;
-                } catch(HttpError httpError){
-                    errorServlet.writeError(httpError,writer,max);
+                } catch (HttpError httpError) {
+                    errorServlet.writeError(httpError, writer, max);
                     writer.flush();
                     break;
-                } catch (SocketException se){
+                } catch (SocketException se) {
                     break;
-                } catch (SocketTimeoutException ste){
+                } catch (SocketTimeoutException ste) {
                     logger.debug("socket time out");
                     break;
                 } catch (Exception e) {
@@ -107,11 +103,10 @@ public class ConnectionWrap implements Runnable {
                     break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            try{
+        } finally {
+            try {
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -119,9 +114,6 @@ public class ConnectionWrap implements Runnable {
         }
     }
 
-    public String getETag(File file, String resource) {
-        return String.valueOf((resource + file.lastModified()).hashCode());
-    }
     private int parseMax(String header) {
         logger.debug("parseMax");
         String[] tokens = header.split("\\s");

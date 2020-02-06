@@ -4,8 +4,8 @@ import java.io.File;
 
 public class WriteETag {
 
-    public String getETag(File file, String resource) {
-        return String.valueOf((resource + file.lastModified()).hashCode());
+    public String getETag(File file) {
+        return String.valueOf((file.getPath() + file.lastModified()).hashCode());
     }
 
 }

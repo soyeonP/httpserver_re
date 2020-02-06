@@ -11,11 +11,11 @@ public class GETHandler {
     private Body body;
     private Logger logger = LoggerFactory.getLogger(GETHandler.class);
 
-    public Response doGet(Request request, String etag) throws IOException { //리소스만 넘겨도 될거같다.
+    public Response doGet(Request request) throws IOException { //리소스만 넘겨도 될거같다.
         response = new Response();
         String resource = request.getHeader().getResource();
         logger.debug("resource : "+resource);
-
+        String etag = request.getHeader().geteTag();
         //build header
         ResponseHeaderBuilder headerbuilder = new ResponseHeaderBuilder();
         ResponseBodyBuilder bodyBuilder = new ResponseBodyBuilder();

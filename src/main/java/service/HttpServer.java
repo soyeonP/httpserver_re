@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 public class HttpServer implements IHttpServer {
     private static int port = 8080;
     private final File droot;
-    private static int THREAD_CNT=200; //코어 스레드 수 : 스레드 수가 증가된후 사용 안하는 스레드를 스레드풀에서 제거할 때 최소 유지해야 하는 스레드의 개수
+    private static int THREAD_CNT = 200; //코어 스레드 수 : 스레드 수가 증가된후 사용 안하는 스레드를 스레드풀에서 제거할 때 최소 유지해야 하는 스레드의 개수
     private ServerSocket listener = null;
     private static ExecutorService threadPool;
     private Logger logger = LoggerFactory.getLogger(HttpServer.class);
@@ -24,34 +24,31 @@ public class HttpServer implements IHttpServer {
         listener = new ServerSocket(port);
 
         threadPool = Executors.newFixedThreadPool(THREAD_CNT);
-        if(!droot.exists() || !droot.isDirectory()){
-            throw new RuntimeException("This docroot is not exist or is not a directory: "+ drootName);
+        if (!droot.exists() || !droot.isDirectory()) {
+            throw new RuntimeException("This docroot is not exist or is not a directory: " + drootName);
         }
         String date = new Date().toString();
-        System.out.println("http server started at "+port + "port" + date);
+        System.out.println("http server started at " + port + "port" + date);
     }
 
     public HttpServer() throws IOException {
-        this("./web",port);
+        this("./web", port);
     }
 
     @Override
     public void start() {
-        try {
-            while (true) {
-                try { //multi thread
-                    Socket socket = listener.accept();
+
+            try { //multi thread
+                Socket socket;
+                while((socket = listener.accept()) != null) {
                     logger.debug("accept :" + socket.toString());
-                    threadPool.execute(new ConnectionWrap(droot,socket));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    threadPool.execute(new ConnectionWrap(droot, socket));
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                shutdown();
             }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally{
-            shutdown();
-        }
     }
 
     @Override
