@@ -3,9 +3,7 @@ package dispatcher;
 
 import error.HttpError;
 import error.StatusCode;
-import handler.GETHandler;
-import handler.HEADHandler;
-import handler.POSTHandler;
+import handler.*;
 import models.Request;
 import models.RequestHeader;
 import models.Response;
@@ -20,6 +18,8 @@ public class HttpDispatcher {
     private GETHandler getHandler;
     private POSTHandler postHandler;
     private HEADHandler headHandler;
+    private PUTHandler putHandler;
+    private DELETEHandler deleteHandler;
     private Response response;
 
 
@@ -27,6 +27,8 @@ public class HttpDispatcher {
         this.getHandler = new GETHandler();
         this.postHandler = new POSTHandler();
         this.headHandler = new HEADHandler();
+        this.putHandler = new PUTHandler();
+        this.deleteHandler = new DELETEHandler();
         this.response = null;
     }
 
@@ -45,8 +47,10 @@ public class HttpDispatcher {
                 response = headHandler.doHead(request);
                 break;
             case PUT:
+                response = putHandler.doPut(request);
                 break;
             case DELETE:
+                response =deleteHandler.doDelete(request);// 204 return
                 break;
             default:
                 throw new HttpError(StatusCode.NOT_IMPLEMENTED); //지원안하는 메소드얌

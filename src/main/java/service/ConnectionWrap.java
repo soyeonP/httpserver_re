@@ -67,28 +67,29 @@ public class ConnectionWrap implements Runnable {
                         int sz;
                         InputStream inputStream = context.getResponse().getStream();
                         logger.debug("start responding");
-                        writer.write(context.getResponse().getheader());
-                        /*                       writer.write( "\r\n");*/
-                        writer.write(context.getResponse().getBody().toString());
-/*                       while ((sz = inputStream.read(buffer)) != -1) //이 while 문 고쳐야함!
-                           out.write(buffer, 0, sz);*/
-                        writer.flush();
-                        logger.debug("end of handler");
-                    } else break;
 
-                    if (request.getHeader().getHeaders().containsKey(Header.CONNECTION.getText())) {
-                        if ("close".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
-                            //클라가 커넥션클로싱 요청
-                            logger.debug("client requested connection close");
-                            break;
-                        }
-                        if ("keep-alive".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
-                            //계속 유지
-                            if (request.getHeader().getHeaders().containsKey(Header.KEEP_ALIVE.getText())) {
-                                max = parseMax(request.getHeader().get(Header.KEEP_ALIVE.getText()));
+                      while ((sz  = inputStream.read(buffer)) != -1) {
+                          out.write(buffer, 0, sz);
+                      }
+                        out.flush();
+                        logger.debug("end of handler");
+
+                        if (request.getHeader().getHeaders().containsKey(Header.CONNECTION.getText())) {
+                            if ("close".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
+                                //클라가 커넥션클로싱 요청
+                                logger.debug("client requested connection close");
+                                break;
+                            }
+                            if ("keep-alive".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
+                                //계속 유지
+                                if (request.getHeader().getHeaders().containsKey(Header.KEEP_ALIVE.getText())) {
+                                    max = parseMax(request.getHeader().get(Header.KEEP_ALIVE.getText()));
+                                }
                             }
                         }
-                    }
+                    } else break;
+
+
                 } catch (HttpError httpError) {
                     errorServlet.writeError(httpError, writer, max);
                     writer.flush();
@@ -113,7 +114,6 @@ public class ConnectionWrap implements Runnable {
             }
         }
     }
-
     private int parseMax(String header) {
         logger.debug("parseMax");
         String[] tokens = header.split("\\s");

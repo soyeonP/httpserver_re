@@ -44,6 +44,7 @@ public class RequestHeader {
 
     public void setHttpVersion(String httpversion) { this.httpVersion = httpversion;}
 
+
     public String Protocol(){
         return fields.get("protocol");
     }
