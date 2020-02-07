@@ -23,7 +23,7 @@ public class ResponseHeaderBuilder {
         fields = new HashMap<>();
         fields.put("Server", "soya");
         fields.put("Connection", "keep-alive"); // close ? keep-alive
-    }
+    } // max 도 적어줘야한다.....
 
     //200 OK state
     public void setState(){
@@ -31,6 +31,11 @@ public class ResponseHeaderBuilder {
         setStatusCode("200");
         setReasonPhrase("OK");
     }
+
+    private void setKeppAlive(int max){
+
+    }
+
     private void setHttpVersion(String version) { statusLine.put("HttpVersion", version); }
 
     public  void setETag(String etag){ fields.put("ETag",etag);}

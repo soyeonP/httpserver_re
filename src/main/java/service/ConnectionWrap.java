@@ -1,6 +1,10 @@
 package service;
 
-
+/**
+* Keep-Alive , responce header에 구현
+ * put delete 구현
+ * 얘네 테스트할 client 만들기
+ * */
 import Sevlet.ErrorServlet;
 import dispatcher.HttpDispatcher;
 import handler.ErrorHandler;
@@ -47,7 +51,8 @@ public class ConnectionWrap implements Runnable {
         try (OutputStream out = socket.getOutputStream()) {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-            // int requestCount = 0;
+            int requestCount = 0;
+            //socket connection keep alive
             while (true) {
                 try {
                     socket.setSoTimeout(SOCKET_TIMEOUT);
@@ -56,6 +61,7 @@ public class ConnectionWrap implements Runnable {
                     logger.debug(request.toString());
                     //받아온 리퀘스트가 가 옳은 리퀘스트인지 확인해보자!
                     if (request != null) {
+                        requestCount++;
                         String resource = request.getHeader().getResource();
                         if (resource != null) {
                             errorHandler.checkHeader(request.getHeader(), droot);
@@ -83,12 +89,16 @@ public class ConnectionWrap implements Runnable {
                             if ("keep-alive".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
                                 //계속 유지
                                 if (request.getHeader().getHeaders().containsKey(Header.KEEP_ALIVE.getText())) {
+                                    logger.debug("client requested keep-alive");
                                     max = parseMax(request.getHeader().get(Header.KEEP_ALIVE.getText()));
                                 }
                             }
                         }
                     } else break;
-
+                    if(requestCount>=max){
+                        logger.debug("over request");
+                        break;
+                    }
 
                 } catch (HttpError httpError) {
                     errorServlet.writeError(httpError, writer, max);
