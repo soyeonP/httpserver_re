@@ -5,10 +5,11 @@ package service;
  * put delete 구현
  * 얘네 테스트할 client 만들기
  * */
+
 import Sevlet.ErrorServlet;
 import dispatcher.HttpDispatcher;
-import handler.ErrorHandler;
 import error.HttpError;
+import handler.StateInterceptor;
 import models.Header;
 import models.HttpContext;
 import models.Request;
@@ -32,7 +33,7 @@ public class ConnectionWrap implements Runnable {
     private ErrorServlet errorServlet;
     private HttpDispatcher dispatcher;
     private int max = DEFAULT_MAX ;
-    private ErrorHandler errorHandler;
+    private StateInterceptor interceptor;
     private HttpContext context;
 
     public ConnectionWrap(File droot, Socket socket) {
@@ -41,7 +42,7 @@ public class ConnectionWrap implements Runnable {
         this.parser = new HttpParser();
         this.dispatcher = new HttpDispatcher();
         this.errorServlet = new ErrorServlet();
-        this.errorHandler =new ErrorHandler();
+        this.interceptor =new StateInterceptor();
         this.context = new HttpContext(null,null);
     }
 
@@ -57,37 +58,34 @@ public class ConnectionWrap implements Runnable {
                 try {
                     socket.setSoTimeout(SOCKET_TIMEOUT);
                     Request request = parser.parse(br);
-                    //requestCount ++;
                     logger.debug(request.toString());
-                    //받아온 리퀘스트가 가 옳은 리퀘스트인지 확인해보자!
                     if (request != null) {
-                        requestCount++;
                         String resource = request.getHeader().getResource();
                         if (resource != null) {
-                            errorHandler.checkHeader(request.getHeader(), droot);
+                            interceptor.checkHeader(request.getHeader(), droot);
+                            request.getHeader().setMax(max-requestCount);
+                            requestCount ++;
+                            request.getHeader().setSocket_Time(SOCKET_TIMEOUT);
+
                             context.setRequest(request);
-                            context.setResponse(dispatcher.dispatch(request));
+                            //dispatch에서 context의 request에 따라 responce 주입
+                            context.setResponse(dispatcher.dispatch(context.getRequest()));
                         }
-                        //writer에 response를 다 적어준다.
                         byte[] buffer = new byte[1024];
                         int sz;
                         InputStream inputStream = context.getResponse().getStream();
-                        logger.debug("start responding");
 
-                      while ((sz  = inputStream.read(buffer)) != -1) {
+                        while ((sz  = inputStream.read(buffer)) != -1) {
                           out.write(buffer, 0, sz);
-                      }
+                        }
                         out.flush();
-                        logger.debug("end of handler");
 
                         if (request.getHeader().getHeaders().containsKey(Header.CONNECTION.getText())) {
                             if ("close".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
-                                //클라가 커넥션클로싱 요청
                                 logger.debug("client requested connection close");
                                 break;
                             }
                             if ("keep-alive".equals(request.getHeader().get(Header.CONNECTION.getText()))) {
-                                //계속 유지
                                 if (request.getHeader().getHeaders().containsKey(Header.KEEP_ALIVE.getText())) {
                                     logger.debug("client requested keep-alive");
                                     max = parseMax(request.getHeader().get(Header.KEEP_ALIVE.getText()));
@@ -99,9 +97,8 @@ public class ConnectionWrap implements Runnable {
                         logger.debug("over request");
                         break;
                     }
-
                 } catch (HttpError httpError) {
-                    errorServlet.writeError(httpError, writer, max);
+                    errorServlet.writeError(httpError, writer);
                     writer.flush();
                     break;
                 } catch (SocketException se) {
@@ -124,6 +121,7 @@ public class ConnectionWrap implements Runnable {
             }
         }
     }
+
     private int parseMax(String header) {
         logger.debug("parseMax");
         String[] tokens = header.split("\\s");

@@ -37,7 +37,6 @@ public class HttpServer implements IHttpServer {
 
     @Override
     public void start() {
-
             try { //multi thread
                 Socket socket;
                 while((socket = listener.accept()) != null) {

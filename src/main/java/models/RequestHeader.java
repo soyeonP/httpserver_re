@@ -9,13 +9,31 @@ public class RequestHeader {
     private String resource;
     private String httpVersion="HTTP/1.1";
     private String eTag;
+    private boolean keepAlive=false;
+    private int max;
+    private int socket_Time;
+
+
+    public void setSocket_Time(int socket_Time){
+        this.socket_Time=socket_Time/1000;
+    }
+    public void setMax(int max){
+        this.max = max;
+    }
+    public int getSocket_Time() {
+        return socket_Time;
+    }
+
+    public int getMax() {
+        return max;
+    }
 
     public enum Method {
-        GET,POST,HEAD,PUT,DELETE
-    }
-    //메소드 버전 리소스는 따로 만들어줄까? 필수니까.
-    public RequestHeader(Map<String, String> fields){
-        this.fields = fields;
+        GET,
+        POST,
+        HEAD,
+        PUT,
+        DELETE
     }
 
     public RequestHeader() {
@@ -28,6 +46,9 @@ public class RequestHeader {
 
     public void set(String key, String val){
         fields.put(key, val);
+        if(key.equals("Connection")){
+            if(val.equals("keep-alive")){ keepAlive=true; } else {keepAlive=false;}
+        }
     }
 
     public Method getMethod(){ return method; }
@@ -56,8 +77,16 @@ public class RequestHeader {
     public void seteTag(String eTag){
         this.eTag = eTag;
     }
+
+    public boolean isKeepAlive(){
+        return keepAlive;
+    }
+
+
     @Override
     public String toString() {
         return fields.toString();
     }
+
+
 }

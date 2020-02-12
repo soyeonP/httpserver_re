@@ -1,5 +1,6 @@
 package models;
 
+import error.HttpError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,6 @@ public class ResponseHeaderBuilder {
         statusLine = new HashMap<>();
         fields = new HashMap<>();
         fields.put("Server", "soya");
-        fields.put("Connection", "keep-alive"); // close ? keep-alive
     } // max 도 적어줘야한다.....
 
     //200 OK state
@@ -32,8 +32,21 @@ public class ResponseHeaderBuilder {
         setReasonPhrase("OK");
     }
 
-    private void setKeppAlive(int max){
+    public void setErrorState(HttpError httpError){
+        setHttpVersion("HTTP/1.1");
+        setStatusCode(Integer.toString(httpError.getCode().getId()));
+        setReasonPhrase(httpError.getCode().getDescription());
+    }
 
+    public void setKeepAlive(int timeout,int max){
+        setField(Header.KEEP_ALIVE.getText(),"timeout="+timeout+", max="+max);
+    }
+
+    public void setConnection(boolean keepAlive){
+        if(keepAlive)
+            fields.put(Header.CONNECTION.getText(), "keep-alive");
+        else
+            fields.put(Header.CONNECTION.getText(), "close");
     }
 
     private void setHttpVersion(String version) { statusLine.put("HttpVersion", version); }
@@ -48,12 +61,12 @@ public class ResponseHeaderBuilder {
 
     //default type
     public  void setContextType(){
-        setField("Content-Type", "text/html; charset=ISO-8859-1");
+        setField(Header.CONTENT_TYPE.getText(), "text/html; charset=UTF-8");
     }
 
-    public void setContextType(File resourceFile) throws IOException { setField("Content-Type", getContentType(resourceFile)); }
+    public void setContextType(File resourceFile) throws IOException { setField(Header.CONTENT_TYPE.getText(), getContentType(resourceFile)); }
 
-    public void setContextType(String type){ setField("Content-Type",type);}
+    public void setContextType(String type){ setField(Header.CONTENT_TYPE.getText(),type);}
 
     public ResponseHeader build() {
         StringBuilder stringBuilder = new StringBuilder();

@@ -18,8 +18,6 @@ public class HttpDispatcher {
     private GETHandler getHandler;
     private POSTHandler postHandler;
     private HEADHandler headHandler;
-    private PUTHandler putHandler;
-    private DELETEHandler deleteHandler;
     private Response response;
 
 
@@ -27,15 +25,13 @@ public class HttpDispatcher {
         this.getHandler = new GETHandler();
         this.postHandler = new POSTHandler();
         this.headHandler = new HEADHandler();
-        this.putHandler = new PUTHandler();
-        this.deleteHandler = new DELETEHandler();
         this.response = null;
     }
 
     public Response dispatch(Request request) throws HttpError, IOException { // context 는 request 를 가지고 있다. response달아줘야함
         RequestHeader.Method method = request.getHeader().getMethod();
         //request의 Method에 따라 다른 response header와 body를 생성한다.
-
+        if(request.getHeader().getHeaders().get("Connection").equals("keep-alive"))
         switch (method){ //리퀘스트를 보내줄게 리스폰스를 가져와줘 :D
             case GET:
                 response = getHandler.doGet(request);
@@ -47,11 +43,7 @@ public class HttpDispatcher {
                 response = headHandler.doHead(request);
                 break;
             case PUT:
-                response = putHandler.doPut(request);
-                break;
             case DELETE:
-                response =deleteHandler.doDelete(request);// 204 return
-                break;
             default:
                 throw new HttpError(StatusCode.NOT_IMPLEMENTED); //지원안하는 메소드얌
         }

@@ -9,7 +9,6 @@ public class HttpContext {
     public HttpContext(Request request, Response response){
         this.request = request;
         this.response = response;
-  /*      this.droot = droot;*/
     }
 
     public Request getRequest() {
@@ -20,10 +19,7 @@ public class HttpContext {
         this.request = request;
     }
 
-/*    public File getDroot(){return droot;}
 
-    public void setDroot(File path){ this.droot = path;
-    }*/
     public Response getResponse() {
         return response;
     }
@@ -31,4 +27,5 @@ public class HttpContext {
     public void setResponse(Response response) {
         this.response = response;
     }
+
 }

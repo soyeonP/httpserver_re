@@ -3,6 +3,7 @@ package service;
 import error.HttpError;
 import error.StatusCode;
 import models.Body;
+import models.Header;
 import models.Request;
 import models.RequestHeader;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import java.io.BufferedReader;
 public class HttpParser {
     private Logger logger = LoggerFactory.getLogger(HttpParser.class);
 
-    //Stringbuilder로 파싱 하는거랑 시간비교해보기!
     public Request parse(BufferedReader bf) throws Exception {
         String line = null;
         RequestHeader header = new RequestHeader();
@@ -27,8 +27,8 @@ public class HttpParser {
             logger.debug("request line : " + line);
             if(isfirstLine){
                 if(line.trim().equals("")){
-                    logger.warn("request is empty"); //이건 에러처리를 해야하나..?
-                    return null;
+                    logger.warn("request is empty");
+                    throw new HttpError(StatusCode.BAD_REQUEST);
                 }
                 String[] requestLineTokens = line.split("\\s");
                 if(requestLineTokens.length !=3) throw new HttpError(StatusCode.BAD_REQUEST);
@@ -40,19 +40,20 @@ public class HttpParser {
             }
             if(line.trim().equals("")) break;
 
-            int colon = line.indexOf(':'); //앞에 키 : 뒤 벨류 잖아 그 구별 인덱스 ex. HOST : localhost
+            int colon = line.indexOf(':'); // ex. HOST : localhost
             String key = line.substring(0, colon);
             String value = line.substring(colon + 2);
-            header.set(key, value); //헤더에 다 박아준다.
+            header.set(key, value);
         }
 
+        /* 바디 파싱 */
         if(RequestHeader.Method.POST == header.getMethod()){
-            int content_length = Integer.parseInt(header.get("Content-Length"));
+            int content_length = Integer.parseInt(header.get(Header.CONTENT_LENGTH.getText()));
             byte[] bodys = new byte[content_length];
             int byteVal ;
             for (int i = 0; i <content_length ; i++) {
                 byteVal = bf.read();
-                if(byteVal == -1){ //예외처리해야함
+                if(byteVal == -1){
                     logger.error("Reading Error");
                     throw new Exception("parsing error at : Parsing body");
                 }else{ bodys[i]=(byte) byteVal; }
@@ -61,15 +62,4 @@ public class HttpParser {
         }
         return new Request(header,body);
     }
-
-    //난주 나눠주자...
-/*    private RequestHeader parseHeader(){
-        RequestHeader header = new RequestHeader();
-    }
-
-    private Body parseBody(){
-        Body body = new Body();
-
-    }*/
-
 }

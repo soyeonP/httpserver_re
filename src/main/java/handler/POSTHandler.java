@@ -13,19 +13,22 @@ public class POSTHandler {
         response = new Response();
 
         ResponseBodyBuilder bodyBuilder = new ResponseBodyBuilder();
-        ResponseHeaderBuilder builder = new ResponseHeaderBuilder();
+        ResponseHeaderBuilder headerbuilder = new ResponseHeaderBuilder();
 
         body = bodyBuilder.build(request.getBody());
         logger.debug(body.toString());
 
         response.setBody(body);
+        headerbuilder.setState(); // write stateline
+        boolean isKeepAlive = request.getHeader().isKeepAlive();
+        headerbuilder.setConnection(isKeepAlive);
+        if(isKeepAlive){ //max,request time 삽입
+            headerbuilder.setKeepAlive(request.getHeader().getSocket_Time(),request.getHeader().getMax());
+        }
+        headerbuilder.setField(Header.CONTENT_LENGTH.getText(), String.valueOf(body.getBytes().length));
+        headerbuilder.setContextType();
 
-        builder.setState(); // write stateline
-        builder.setField("Content-Length", String.valueOf(body.getBytes().length));
-        builder.setContextType("text/html; charset=UTF-8");
-
-        response.setHeader(builder.build());
-
+        response.setHeader(headerbuilder.build());
         return response;
     }
 }

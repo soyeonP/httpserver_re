@@ -1,40 +1,38 @@
 package Sevlet;
 
 import error.HttpError;
+import models.ResponseHeader;
+import models.ResponseHeaderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
-public class ErrorServlet {
+public class ErrorServlet extends Servlet {
     private Logger logger = LoggerFactory.getLogger(ErrorServlet.class);
-    public static final String CRLF = "\r\n";
 
-    public void writeError(HttpError httpError, BufferedWriter out, int max) throws IOException {
+    public void writeError(HttpError httpError, BufferedWriter out) throws IOException {
         logger.debug("returning " + httpError);
 
         StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">").append(CRLF);
-        html.append("<html><head>").append(CRLF);
-        html.append(String.format("<title>%s %s</title>", httpError.getCode().getId(),
-                httpError.getCode().getDescription())).append(CRLF);
-        html.append("</head><body>").append(CRLF);
-        html.append(String.format("<h1>%s</h1>", httpError.getCode().getDescription())).append(CRLF);
-        html.append("</body></html>").append(CRLF);
+        String title = new StringBuilder().append(httpError.getCode().getId()).append(" ").append(httpError.getCode().getDescription()).toString();
+        writeHtmlFront(html, title);
+        html.append(String.format("<h1> %s %s</h1>",httpError.getCode().getId() ,httpError.getCode().getDescription())).append(CRLF);
+        writeHtmlBack(html);
 
-        StringBuilder response = new StringBuilder();
-        response.append("HTTP/1.1 " + httpError.getCode().getId() + " " + httpError.getCode().getDescription() + CRLF);
-        response.append("Date: " + LocalDateTime.now() + CRLF);
-        response.append("Server: soya" + CRLF);
-        response.append("Content-Type: text/html; charset=UTF-8" + CRLF);
-        response.append("Content-Length: " + html.length() + CRLF);
-        response.append("Keep-Alive: timeout=5, max=" + max + CRLF);
-        response.append("Connection: close" + CRLF);
-        response.append(CRLF);
+        ResponseHeaderBuilder builder = new ResponseHeaderBuilder();
+        builder.setErrorState(httpError);
+        builder.setContextType();
 
-        out.write(response.toString());
+        if(httpError.getCode().getId()==304){
+            builder.setField("Cache-Control","max-age=120");
+        }
+        builder.setField("Content-Length: ",Integer.toString(html.length()));
+        builder.setConnection(false);
+
+        ResponseHeader responseheaeder = builder.build();;
+        out.write(responseheaeder.getHeader());
         out.write(html.toString());
     }
 }

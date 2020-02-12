@@ -1,6 +1,6 @@
 package models;
 
-import Sevlet.GetServlet;
+import Sevlet.Servlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +29,14 @@ public class ResponseBodyBuilder {
         }
         String[] resourceTokens = resource.split("\\?");
         Query = getQuery(resourceTokens[1].split("\\&"));
-        return GetServlet.writeHttp(Query);
+        return Servlet.writeHttp(Query);
     }
 
-    public Body build(Body body){ //바디 요청은 바디 그대로
+    public Body build(Body body){ // 바디 그대로
         String bodytext = body.toString();
         System.out.println(bodytext);
         Query = getQuery( bodytext.split("\\&") );
-        return GetServlet.writeHttp(Query);
+        return Servlet.writeHttp(Query);
     }
 
     private boolean isQuery(String resource) {

@@ -26,6 +26,11 @@ public class GETHandler {
 
         int contentLength = body.getBytes().length;
         headerbuilder.setState(); // write stateline
+        boolean isKeepAlive = request.getHeader().isKeepAlive();
+        headerbuilder.setConnection(isKeepAlive);
+        if(isKeepAlive){ //max,request time 삽입
+            headerbuilder.setKeepAlive(request.getHeader().getSocket_Time(),request.getHeader().getMax());
+        }
         headerbuilder.setETag(etag);
         headerbuilder.setField("Content-Length", String.valueOf(contentLength));
         if(body.getDataType()!=null) headerbuilder.setContextType(body.getDataType());

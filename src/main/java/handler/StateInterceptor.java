@@ -15,13 +15,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
 
-//이름 새로 짓자.
-public class ErrorHandler {
-    private Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
+public class StateInterceptor {
+    private Logger logger = LoggerFactory.getLogger(StateInterceptor.class);
 
     public void checkHeader(RequestHeader requestHeader,File droot) throws HttpError {
         WriteETag writeETag = new WriteETag();
-        RequestHeader.Method method = requestHeader.getMethod();
         String resource = requestHeader.getResource();
         if(resource.equals("/")) { resource = "\\index.html"; }
 

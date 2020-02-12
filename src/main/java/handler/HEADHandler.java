@@ -1,6 +1,5 @@
 package handler;
 
-import models.Body;
 import models.Request;
 import models.Response;
 import models.ResponseHeaderBuilder;
@@ -12,13 +11,11 @@ import java.io.IOException;
 
 public class HEADHandler {
     private Response response;
-    private Body body;
     private Logger logger = LoggerFactory.getLogger(GETHandler.class);
 
     public Response doHead(Request request) throws IOException {
         String resource = request.getHeader().getResource();
 
-        // File resourceFile = new File(resource);
         logger.debug("resource : "+resource);
         File resourceFile = new File(resource);
 
