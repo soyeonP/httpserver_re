@@ -31,7 +31,7 @@ public class HttpDispatcher {
     public Response dispatch(Request request) throws HttpError, IOException { // context 는 request 를 가지고 있다. response달아줘야함
         RequestHeader.Method method = request.getHeader().getMethod();
         //request의 Method에 따라 다른 response header와 body를 생성한다.
-        if(request.getHeader().getHeaders().get("Connection").equals("keep-alive"))
+        //if(request.getHeader().getHeaders().get("Connection").equals("keep-alive"))
         switch (method){ //리퀘스트를 보내줄게 리스폰스를 가져와줘 :D
             case GET:
                 response = getHandler.doGet(request);

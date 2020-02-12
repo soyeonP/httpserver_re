@@ -16,7 +16,7 @@ public class GETHandler {
         String resource = request.getHeader().getResource();
         logger.debug("resource : "+resource);
         String etag = request.getHeader().geteTag();
-        //build header
+
         ResponseHeaderBuilder headerbuilder = new ResponseHeaderBuilder();
         ResponseBodyBuilder bodyBuilder = new ResponseBodyBuilder();
 
@@ -32,7 +32,7 @@ public class GETHandler {
             headerbuilder.setKeepAlive(request.getHeader().getSocket_Time(),request.getHeader().getMax());
         }
         headerbuilder.setETag(etag);
-        headerbuilder.setField("Content-Length", String.valueOf(contentLength));
+        headerbuilder.setField(Header.CONTENT_LENGTH.getText(), String.valueOf(contentLength));
         if(body.getDataType()!=null) headerbuilder.setContextType(body.getDataType());
         else headerbuilder.setContextType();
 

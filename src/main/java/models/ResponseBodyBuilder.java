@@ -18,15 +18,15 @@ public class ResponseBodyBuilder {
     public ResponseBodyBuilder(){
         Query = new HashMap<>();
     }
-
-    public Body build(String resource) throws IOException { //get 요청시 그냥 파일명 혹은 파일명+쿼리가 들어온다.
+    //get 요청시 그냥 파일명 혹은 파일명+쿼리가 들어온다.
+    public Body build(String resource) throws IOException {
         if(!isQuery(resource)){
-            logger.debug("this request have query");
             File resourceFile = new File(resource);
             byte[] bodydata = new byte[(int) resourceFile.length()];
             new FileInputStream(resourceFile).read(bodydata);
             return new Body(bodydata, Files.probeContentType(resourceFile.toPath()));
         }
+        logger.debug("this request have query");
         String[] resourceTokens = resource.split("\\?");
         Query = getQuery(resourceTokens[1].split("\\&"));
         return Servlet.writeHttp(Query);
@@ -34,7 +34,6 @@ public class ResponseBodyBuilder {
 
     public Body build(Body body){ // 바디 그대로
         String bodytext = body.toString();
-        System.out.println(bodytext);
         Query = getQuery( bodytext.split("\\&") );
         return Servlet.writeHttp(Query);
     }

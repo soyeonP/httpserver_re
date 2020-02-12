@@ -28,7 +28,7 @@ public class HttpParser {
             if(isfirstLine){
                 if(line.trim().equals("")){
                     logger.warn("request is empty");
-                    throw new HttpError(StatusCode.BAD_REQUEST);
+                    //throw new HttpError(StatusCode.BAD_REQUEST);
                 }
                 String[] requestLineTokens = line.split("\\s");
                 if(requestLineTokens.length !=3) throw new HttpError(StatusCode.BAD_REQUEST);
