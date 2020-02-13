@@ -31,7 +31,8 @@ public class HttpParser {
                     return null;
                 }
                 String[] requestLineTokens = line.split("\\s");
-                if(requestLineTokens.length !=3) throw new HttpError(StatusCode.BAD_REQUEST);
+                if(requestLineTokens.length !=3)
+                    throw new HttpError(StatusCode.BAD_REQUEST);
                 header.setMethod(requestLineTokens[0]);
                 header.setResource(requestLineTokens[1]);
                 header.setHttpVersion(requestLineTokens[2]);

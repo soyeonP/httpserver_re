@@ -58,8 +58,8 @@ public class ConnectionWrap implements Runnable {
                 try {
                     socket.setSoTimeout(SOCKET_TIMEOUT);
                     Request request = parser.parse(br);
-                    logger.debug(request.toString());
                     if (request != null) {
+                        logger.debug(request.toString());
                         String resource = request.getHeader().getResource();
                         if (resource != null) {
                             interceptor.checkHeader(request.getHeader(), droot);

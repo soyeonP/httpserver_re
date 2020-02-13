@@ -4,18 +4,20 @@ import java.net.UnknownHostException;
 
 public class ErrorTest {
     private static int socket_cnt = 1;
-    private static String resource="/index.html";
-    private static String Method="GET";
+    private static String resource = "/index.html";
+    private static String Method ="GET";
     private static String httpverion ="HTTP/1.1";
     public static final String CRLF = "\r\n";
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         ErrorTest test = new ErrorTest();
-        System.out.print("Resource : ");
-        resource = bf.readLine();
         System.out.print("Method : ");
-        Method = bf.readLine();
-        test.sendSocket(socket_cnt,resource,Method,httpverion);
+        while(!(Method = bf.readLine()).isEmpty()) {
+            System.out.print("Resource : ");
+            resource = bf.readLine();
+            test.sendSocket(socket_cnt,resource,Method,httpverion);
+            System.out.print("Method : ");
+        }
     }
 
     public void sendSocket(int cnt,String resource,String Method, String httpversion) {
