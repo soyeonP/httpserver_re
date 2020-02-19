@@ -49,17 +49,24 @@ public class HttpParser {
 
         /* 바디 파싱 */
         if(RequestHeader.Method.POST == header.getMethod()){
+            logger.debug("reading body");
             int content_length = Integer.parseInt(header.get(Header.CONTENT_LENGTH.getText()));
+            while(!(line = bf.readLine()).endsWith("--")){
+                logger.debug("body :"+line);
+            }
+/*
             byte[] bodys = new byte[content_length];
             int byteVal ;
             for (int i = 0; i <content_length ; i++) {
                 byteVal = bf.read();
-                if(byteVal == -1){
+               if(byteVal == -1){
                     logger.error("Reading Error");
                     throw new Exception("parsing error at : Parsing body");
-                }else{ bodys[i]=(byte) byteVal; }
+                } else bodys[i]=(byte) byteVal;
             }
-            body = new Body(bodys);
+*/
+//            body = new Body(bodys);
+
         }
         return new Request(header,body);
     }

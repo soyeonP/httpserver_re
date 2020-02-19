@@ -11,6 +11,7 @@ public class ErrorTest {
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         ErrorTest test = new ErrorTest();
+        System.out.println(Runtime.getRuntime().availableProcessors());
         System.out.print("Method : ");
         while(!(Method = bf.readLine()).isEmpty()) {
             System.out.print("Resource : ");

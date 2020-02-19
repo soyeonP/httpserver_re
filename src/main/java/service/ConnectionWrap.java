@@ -26,7 +26,7 @@ public class ConnectionWrap implements Runnable {
 
     private Socket socket = null;
     private File droot;
-    private static int DEFAULT_MAX = 100;
+    private static int DEFAULT_MAX = 10000000;
     private static final int SOCKET_TIMEOUT = 5000;
     private Logger logger = LoggerFactory.getLogger(ConnectionWrap.class);
     private HttpParser parser ;
@@ -66,7 +66,6 @@ public class ConnectionWrap implements Runnable {
                             request.getHeader().setMax(max-requestCount);
                             requestCount ++;
                             request.getHeader().setSocket_Time(SOCKET_TIMEOUT);
-
                             context.setRequest(request);
                             //dispatch에서 context의 request에 따라 responce 주입
                             context.setResponse(dispatcher.dispatch(context.getRequest()));
